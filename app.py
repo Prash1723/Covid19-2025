@@ -11,6 +11,6 @@ soup = BeautifulSoup(response.text, 'html.parser')
 active_table = soup.find('table', attrs={'class': active_cl})
 
 # Load data
-cov = pd.read_html(str(active_table))[0]
+cov = pd.read_html(str(active_table), header=0)[0]
 
 print(cov)
