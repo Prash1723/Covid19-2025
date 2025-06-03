@@ -9,11 +9,12 @@ h3_table2 = 'COVID-19 Active Cases State Wise 2025 Update Today'
 response = requests.get(cases_url)
 soup = BeautifulSoup(response.text, 'html.parser')
 
-total_table = soup.find_all('table', attrs={'class': active_cl})
-# active_table = soup.find('table', attrs={'class': active_cl})[1]
+tables = soup.find_all('table', attrs={'class': active_cl})
 
 # Load data
-cov_daily = pd.read_html(str(total_table), header=0)[0]
-cov_active = pd.read_html(str(total_table), header=0)[1]
+cov_total = pd.read_html(str(tables), header=0)[0]
+cov_active = pd.read_html(str(tables), header=0)[1]
 
-print(cov_active)
+cov_total.to_csv('data/total_data.csv', index=False)
+
+cov_active.to_csv('data/daily_data.csv', index=False)
