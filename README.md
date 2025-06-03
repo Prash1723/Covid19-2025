@@ -10,6 +10,8 @@ This is a quick project to track the 2025 spike in covid19 cases in India
     - Numpy
     - BeautifulSoup
 
+**Source**: https://www.covid19india.org/
+
 ## Run
 To run this project, follow the steps:
 
@@ -34,6 +36,10 @@ This project is licensed under the MIT License. See the LICENSE file for more in
 
 ## Acknowledgments
 The analysis is inspired by the author's desire to identify and keep track with the statistics related to Covid19 outbreak in India 2025.
+
+## Contributors
+
+1. Praveen Shekar(Prash1723)
 
 ## Contributing
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
