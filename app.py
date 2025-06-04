@@ -25,6 +25,7 @@ cov_total.columns = ["s.no", "state", "total_active_cases", "new_cases_since_day
 cov_total.to_csv('data/total_data.csv', index=False)
 cov_active.to_csv('data/daily_data.csv', index=False)
 
+# Total Active Cases chart
 cov_total.plot(kind='barh', y="total_active_cases", x="state", width=0.9)
 plt.xlabel('Total Active Cases')
 plt.ylabel('State & UTs')
