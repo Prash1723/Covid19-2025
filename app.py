@@ -20,6 +20,9 @@ cov_active = pd.read_html(str(tables), header=0)[1]
 
 # Rename Columns
 cov_total.columns = ["s.no", "state", "total_active_cases", "new_cases_since_day_before"]
+cov_active.columns = ["state", "daily_cases"]
+
+print(cov_active)
 
 # Save Data
 cov_total.to_csv('data/total_data.csv', index=False)
@@ -28,5 +31,11 @@ cov_active.to_csv('data/daily_data.csv', index=False)
 # Total Active Cases chart
 cov_total.plot(kind='barh', y="total_active_cases", x="state", width=0.9)
 plt.xlabel('Total Active Cases')
+plt.ylabel('State & UTs')
+plt.show()
+
+# Daily Cases chart
+cov_active.plot(kind='barh', y="daily_cases", x="state", width=0.9)
+plt.xlabel('Daily Cases')
 plt.ylabel('State & UTs')
 plt.show()
