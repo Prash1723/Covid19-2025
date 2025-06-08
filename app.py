@@ -50,17 +50,17 @@ def create_data(attr, old, new):
     """Create and modify data for the bokeh map"""
 
     # Mask data to the required year value
-    df1 = geo_df1[geo_df1['year']==str(chosen_year)].copy()
-    df2 = gen_df1.query('country.isin(@continents)')[gen_df1['year']==str(chosen_year)].copy()
+    df1 = gdf.merge(cov_total, how='inner')
 
     # Read data to json
-    df_json = json.loads(df1[['country', 'country_code', 'state', 'geometry']].to_json())
+    df_json = json.loads(df1[
+        ['country', 'country_code', 'state', 'geometry', 'total_active_cases', 'new_cases_since_day_before']
+        ].to_json())
 
     map_data = json.dumps(df_json)
 
     # Assign Source
     map_source.geojson = map_data
-    bar_sc.data = df2
 
 # Total Active Cases chart
 cov_total.plot(kind='barh', y="total_active_cases", x="state", width=0.9)
