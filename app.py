@@ -39,12 +39,10 @@ cov_total.to_csv('data/total_data.csv', index=False)
 
 # Map data
 borders = 'mapping/ne_50m_admin_1_states_provinces.shp'
-gdf = gpd.read_file(borders) #[['ADMIN', 'ADM0_A3', 'geometry']]
+gdf = gpd.read_file(borders)[['admin', 'adm0_a3', 'name', 'geometry']]
 
-
-print(gdf)
 # Rename columns
-#gdf.columns = ['country', 'country_code', 'geometry']
+gdf.columns = ['country', 'country_code', 'state', 'geometry']
 
 # - Functions
 
@@ -52,12 +50,11 @@ def create_data(attr, old, new):
     """Create and modify data for the bokeh map"""
 
     # Mask data to the required year value
-    chosen_year = year_slider.value
     df1 = geo_df1[geo_df1['year']==str(chosen_year)].copy()
     df2 = gen_df1.query('country.isin(@continents)')[gen_df1['year']==str(chosen_year)].copy()
 
     # Read data to json
-    df_json = json.loads(df1[['country', 'country_code', 'geometry', 'technology', 'unit', 'year', 'percentage']].to_json())
+    df_json = json.loads(df1[['country', 'country_code', 'state', 'geometry']].to_json())
 
     map_data = json.dumps(df_json)
 
