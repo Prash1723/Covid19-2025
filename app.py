@@ -36,6 +36,13 @@ cov_total = pd.read_html(str(tables), header=0)[0]
 # Rename Columns
 cov_total.columns = ["s.no", "state", "total_active_cases", "new_cases_since_day_before"]
 
+# Rename
+state_name = {
+    'Kerala***': 'Kerala'
+}
+
+cov_total.state = cov_total.state.apply(lambda x: state_name.get(x, x))
+
 # Save Data
 cov_total.to_csv('data/total_data.csv', index=False)
 
@@ -45,6 +52,9 @@ gdf = gpd.read_file(borders)[['admin', 'adm0_a3', 'name', 'geometry']]
 
 # Rename columns
 gdf.columns = ['country', 'country_code', 'state', 'geometry']
+
+print(gdf.query('country=="India"').state)
+print(cov_total.state)
 
 # - Functions
 
@@ -93,7 +103,7 @@ map_all.hover.point_policy = "follow_mouse"
 map_all.patches(
     "xs", "ys", source=map_source,
     fill_color={
-        "field": 'percentage',
+        "field": 'total_active_cases',
         "transform": color_mapper
     },
     fill_alpha=0.7, line_color="black", line_width=0.5
