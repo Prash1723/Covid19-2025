@@ -12,6 +12,8 @@ from bokeh.layouts import row, column, gridplot
 from bokeh.palettes import Viridis6 as palette
 from bokeh.transform import cumsum
 
+import colorcet
+
 import geopandas as gpd
 import pycountry
 import json
@@ -46,11 +48,11 @@ gdf.columns = ['country', 'country_code', 'state', 'geometry']
 
 # - Functions
 
-def create_data(attr, old, new):
+def create_data(df1, map_data):
     """Create and modify data for the bokeh map"""
 
     # Mask data to the required year value
-    df1 = gdf.merge(cov_total, how='inner')
+    df1 = gdf.merge(cov_total, how='inner', left_on='state', right_on='state')
 
     # Read data to json
     df_json = json.loads(df1[
@@ -60,10 +62,46 @@ def create_data(attr, old, new):
     map_data = json.dumps(df_json)
 
     # Assign Source
-    map_source.geojson = map_data
+    return map_data
 
-# Total Active Cases chart
-cov_total.plot(kind='barh', y="total_active_cases", x="state", width=0.9)
-plt.xlabel('Total Active Cases')
-plt.ylabel('State & UTs')
-plt.show()
+# Data source
+map_source = GeoJSONDataSource(geojson=create_data(cov_total, gdf))
+
+# Map Geometry
+color_mapper = LinearColorMapper(palette=colorcet.bgy, low=0, high=100)
+
+color_bar = ColorBar(color_mapper = color_mapper, location = (0,0))
+
+# Map
+TOOLS = "pan,wheel_zoom,reset,hover,save"
+
+map_all = figure(
+    width=725, 
+    height=500,
+    title="Total active cases by states",
+    tools=TOOLS, x_axis_location=None, y_axis_location=None,
+    tooltips = [
+        ("state", "@state"),
+        ("Cases", "@total_active_cases")
+    ]
+)
+
+map_all.grid.grid_line_color = None
+map_all.hover.point_policy = "follow_mouse"
+
+# Create patches (of map)
+map_all.patches(
+    "xs", "ys", source=map_source,
+    fill_color={
+        "field": 'percentage',
+        "transform": color_mapper
+    },
+    fill_alpha=0.7, line_color="black", line_width=0.5
+)
+
+map_all.add_layout(color_bar, 'below')
+
+layout = map_all
+
+curdoc().add_root(layout)
+curdoc().title = "Covid-19 cases map"
