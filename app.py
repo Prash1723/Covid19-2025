@@ -62,7 +62,9 @@ def create_data(df1, map_data):
     """Create and modify data for the bokeh map"""
 
     # Mask data to the required year value
-    df1 = gdf.merge(cov_total, how='inner', left_on='state', right_on='state')
+    df1 = gdf.query('country=="India"').merge(cov_total, how='left', left_on='state', right_on='state')
+
+    df1.fillna(0, inplace=True)
 
     # Read data to json
     df_json = json.loads(df1[
