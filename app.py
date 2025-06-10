@@ -80,7 +80,7 @@ def create_data(df1, map_data):
 map_source = GeoJSONDataSource(geojson=create_data(cov_total, gdf))
 
 # Map Geometry
-color_mapper = LinearColorMapper(palette=colorcet.bgy, low=0, high=100)
+color_mapper = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.total_active_cases.max())
 
 color_bar = ColorBar(color_mapper = color_mapper, location = (0,0))
 
@@ -88,8 +88,8 @@ color_bar = ColorBar(color_mapper = color_mapper, location = (0,0))
 TOOLS = "pan,wheel_zoom,reset,hover,save"
 
 map_all = figure(
-    width=725, 
-    height=500,
+    width=500, 
+    height=725,
     title="Total active cases by states",
     tools=TOOLS, x_axis_location=None, y_axis_location=None,
     tooltips = [
