@@ -37,9 +37,7 @@ cov_total = pd.read_html(str(tables), header=0)[0]
 cov_total.columns = ["s.no", "state", "total_active_cases", "new_cases_since_day_before"]
 
 # Rename
-state_name = {
-    'Kerala***': 'Kerala'
-}
+state_name = {'Kerala***': 'Kerala'}
 
 cov_total.state = cov_total.state.apply(lambda x: state_name.get(x, x))
 
@@ -53,6 +51,7 @@ gdf = gpd.read_file(borders)[['admin', 'adm0_a3', 'name', 'geometry']]
 # Rename columns
 gdf.columns = ['country', 'country_code', 'state', 'geometry']
 
+# Drop total row
 total_daily, total_active = cov_total.query('state=="Total#"')[['new_cases_since_day_before', 'total_active_cases']]
 
 cov_total.drop(index=28, axis=0, inplace=True)
@@ -89,7 +88,7 @@ color_bar = ColorBar(color_mapper = color_mapper, location = (0,0))
 TOOLS = "pan,wheel_zoom,reset,hover,save"
 
 map_all = figure(
-    width=500, 
+    width=550, 
     height=725,
     title="Total active cases by states",
     tools=TOOLS, x_axis_location=None, y_axis_location=None,
