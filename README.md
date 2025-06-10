@@ -9,6 +9,7 @@ This is a quick project to track the 2025 spike in covid19 cases in India
     - Pandas
     - Numpy
     - BeautifulSoup
+    - Bokeh
 
 **Source**: https://www.covid19india.org/
 
@@ -17,19 +18,27 @@ To run this project, follow the steps:
 
 1. Clone the repository:
 
-```git clone https://github.com/Prash1723/Covid19-2025.git```
+```
+git clone https://github.com/Prash1723/Covid19-2025.git
+```
 
 2. Navigate to the project folderc
 
-```cd Covid19-2025```
+```
+cd Covid19-2025
+```
 
 3. Install the required modules
 
-```pip3 install -r requirements.txt```
+```
+pip3 install -r requirements.txt
+```
 
 4. Run the python file
 
-```python3 script_folder/script.py```
+```
+python3 script_folder/script.py
+```
 
 ## License
 This project is licensed under the MIT License. See the LICENSE file for more information.
