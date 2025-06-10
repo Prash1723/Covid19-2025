@@ -53,8 +53,9 @@ gdf = gpd.read_file(borders)[['admin', 'adm0_a3', 'name', 'geometry']]
 # Rename columns
 gdf.columns = ['country', 'country_code', 'state', 'geometry']
 
-print(gdf.query('country=="India"').state)
-print(cov_total.state)
+total_daily, total_active = cov_total.query('state=="Total#"')[['new_cases_since_day_before', 'total_active_cases']]
+
+cov_total.drop(index=28, axis=0, inplace=True)
 
 # - Functions
 
