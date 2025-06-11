@@ -84,7 +84,14 @@ color_mapper = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.tot
 
 color_bar = ColorBar(color_mapper = color_mapper, location = (0,0))
 
-# Map
+# Create widgets
+state_select = Select(
+    title="Select state",
+    value="Kerala",
+    options=list(set(cov_total['state'].dropna().astype(str)))
+    )
+
+# Map of India
 TOOLS = "pan,wheel_zoom,reset,hover,save"
 
 map_all = figure(
