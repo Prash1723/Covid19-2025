@@ -78,11 +78,14 @@ def create_data(df1, map_data):
 
 # Data source
 map_source = GeoJSONDataSource(geojson=create_data(cov_total, gdf))
+state_source = GeoJSONDataSource(geojson=create_data(cov_total, gdf))
 
 # Map Geometry
-color_mapper = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.total_active_cases.max())
+color_mapper1 = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.new_cases_since_day_before.max())
+color_mapper2 = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.total_active_cases.max())
 
-color_bar = ColorBar(color_mapper = color_mapper, location = (0,0))
+color_bar1 = ColorBar(color_mapper = color_mapper1, location = (0,0))
+color_bar2 = ColorBar(color_mapper = color_mapper2, location = (0,0))
 
 # Create widgets
 state_select = Select(
@@ -94,10 +97,37 @@ state_select = Select(
 # Map of India
 TOOLS = "pan,wheel_zoom,reset,hover,save"
 
-map_all = figure(
+map_state = figure(
     width=550, 
     height=725,
     title="Total active cases by states",
+    tools=TOOLS, x_axis_location=None, y_axis_location=None,
+    tooltips = [
+        ("state", "@state"),
+        ("Cases", "@new_cases_since_day_before")
+    ]
+)
+
+map_state.grid.grid_line_color = None
+map_state.hover.point_policy = "follow_mouse"
+
+# Create patches (of map)
+map_state.patches(
+    "xs", "ys", source=state_source,
+    fill_color={
+        "field": 'new_cases_since_day_before',
+        "transform": color_mapper1
+    },
+    fill_alpha=0.7, line_color="black", line_width=0.5
+)
+
+map_state.add_layout(color_bar1, 'below')
+
+# Map of India
+map_all = figure(
+    width=550, 
+    height=725,
+    title="Daily active cases by states",
     tools=TOOLS, x_axis_location=None, y_axis_location=None,
     tooltips = [
         ("state", "@state"),
@@ -113,14 +143,14 @@ map_all.patches(
     "xs", "ys", source=map_source,
     fill_color={
         "field": 'total_active_cases',
-        "transform": color_mapper
+        "transform": color_mapper2
     },
     fill_alpha=0.7, line_color="black", line_width=0.5
 )
 
 map_all.add_layout(color_bar, 'below')
 
-layout = map_all
+layout = row(map_all, column(state_select, map_state))
 
 curdoc().add_root(layout)
 curdoc().title = "Covid-19 cases map"
