@@ -156,6 +156,19 @@ map_all.patches(
 
 map_all.add_layout(color_bar2, 'below')
 
+def update_state():
+    """Updates the state map"""
+    selected_state = state_select.value
+
+    # Filter data
+    data = df1.query('state=="@selected_state"')
+
+    # Read and dump data into json
+    df_json = json.loads(data)
+    map_data = json.dumps(df_json)
+
+    return map_data
+
 state_select.on_change("value", lambda attr, old, new: update_state())
 
 layout = row(map_all, column(state_select, map_state))
