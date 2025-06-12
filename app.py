@@ -46,7 +46,7 @@ cov_total.to_csv('data/total_data.csv', index=False)
 
 # Map data
 borders = 'mapping/in.shp'
-gdf = gpd.read_file(borders) #[['id', 'name', 'geometry']]
+gdf = gpd.read_file(borders)[['id', 'name', 'geometry']]
 
 # Rename columns
 gdf.columns = ['state_code', 'state', 'geometry']
