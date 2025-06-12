@@ -45,11 +45,11 @@ cov_total.state = cov_total.state.apply(lambda x: state_name.get(x, x))
 cov_total.to_csv('data/total_data.csv', index=False)
 
 # Map data
-borders = 'mapping/ne_50m_admin_1_states_provinces.shp'
-gdf = gpd.read_file(borders)[['admin', 'adm0_a3', 'name', 'geometry']]
+borders = 'mapping/in.shp'
+gdf = gpd.read_file(borders) #[['id', 'name', 'geometry']]
 
 # Rename columns
-gdf.columns = ['country', 'country_code', 'state', 'geometry']
+gdf.columns = ['state_code', 'state', 'geometry']
 
 # Drop total row
 total_daily, total_active = cov_total.query('state=="Total#"')[['new_cases_since_day_before', 'total_active_cases']]
@@ -62,13 +62,13 @@ def create_data(df1, map_data):
     """Create and modify data for the bokeh map"""
 
     # Mask data to the required year value
-    df1 = gdf.query('country=="India"').merge(cov_total, how='left', left_on='state', right_on='state')
+    df1 = gdf.merge(cov_total, how='left', left_on='state', right_on='state')
 
     df1.fillna(0, inplace=True)
 
     # Read data to json
     df_json = json.loads(df1[
-        ['country', 'country_code', 'state', 'geometry', 'total_active_cases', 'new_cases_since_day_before']
+        ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_since_day_before']
         ].to_json())
 
     map_data = json.dumps(df_json)
