@@ -34,7 +34,7 @@ tables = soup.find_all('table', attrs={'class': active_cl})
 cov_total = pd.read_html(str(tables), header=0)[0]
 
 # Rename Columns
-cov_total.columns = ["s.no", "state", "total_active_cases", "new_cases_since_day_before"]
+cov_total.columns = ["s.no", "state", "total_active_cases", "new_cases_today"]
 
 # Rename
 state_name = {'Kerala***': 'Kerala'}
@@ -52,9 +52,15 @@ gdf = gpd.read_file(borders)[['id', 'name', 'geometry']]
 gdf.columns = ['state_code', 'state', 'geometry']
 
 # Drop total row
-total_daily, total_active = cov_total.query('state=="Total#"')[['new_cases_since_day_before', 'total_active_cases']]
+total_daily, total_active = cov_total.query('state=="Total#"')[['new_cases_today', 'total_active_cases']]
 
 cov_total.drop(index=28, axis=0, inplace=True)
+
+# Replace - with 0 in new_cases_today
+cov_total.new_cases_today.replace({'–': 0}, inplace=True)
+cov_total.new_cases_today = cov_total.new_cases_today.apply(lambda x: int(x))
+
+print(cov_total.new_cases_today)
 
 # - Functions
 
@@ -68,7 +74,7 @@ def create_data(df1, map_data):
 
     # Read data to json
     df_json = json.loads(df1[
-        ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_since_day_before']
+        ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
         ].to_json())
 
     map_data = json.dumps(df_json)
@@ -81,7 +87,7 @@ map_source = GeoJSONDataSource(geojson=create_data(cov_total, gdf))
 state_source = GeoJSONDataSource(geojson=create_data(cov_total, gdf))
 
 # Map Geometry
-color_mapper1 = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.new_cases_since_day_before.max())
+color_mapper1 = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.new_cases_today.max())
 color_mapper2 = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.total_active_cases.max())
 
 color_bar1 = ColorBar(color_mapper = color_mapper1, location = (0,0))
@@ -104,7 +110,7 @@ map_state = figure(
     tools=TOOLS, x_axis_location=None, y_axis_location=None,
     tooltips = [
         ("state", "@state"),
-        ("Cases", "@new_cases_since_day_before")
+        ("Cases", "@new_cases_today")
     ]
 )
 
@@ -115,7 +121,7 @@ map_state.hover.point_policy = "follow_mouse"
 map_state.patches(
     "xs", "ys", source=state_source,
     fill_color={
-        "field": 'new_cases_since_day_before',
+        "field": 'new_cases_today',
         "transform": color_mapper1
     },
     fill_alpha=0.7, line_color="black", line_width=0.5
