@@ -62,27 +62,29 @@ cov_total.new_cases_today = cov_total.new_cases_today.apply(lambda x: int(x))
 
 # - Functions
 
-def create_data(df1, map_data):
-    """Create and modify data for the bokeh map"""
+# Mask data to the required year value
+df1 = gdf.merge(cov_total, how='left', left_on='state', right_on='state')
 
-    # Mask data to the required year value
-    df1 = gdf.merge(cov_total, how='left', left_on='state', right_on='state')
+df1.fillna(0, inplace=True)
 
-    df1.fillna(0, inplace=True)
+# Read data to json
+## India map data
+df_json = json.loads(df1[
+    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
+    ].to_json())
 
-    # Read data to json
-    df_json = json.loads(df1[
-        ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
-        ].to_json())
+map_data = json.dumps(df_json)
 
-    map_data = json.dumps(df_json)
+## State map data
+state_json = json.loads(df1[
+    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
+    ].to_json())
 
-    # Assign Source
-    return map_data
+state_data = json.dumps(state_json)
 
 # Data source
-map_source = GeoJSONDataSource(geojson=create_data(cov_total, gdf))
-state_source = GeoJSONDataSource(geojson=create_data(cov_total, gdf))
+map_source = GeoJSONDataSource(geojson=map_data)
+state_source = GeoJSONDataSource(geojson=state_data)
 
 # Map Geometry
 color_mapper1 = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.new_cases_today.max())
@@ -153,6 +155,8 @@ map_all.patches(
 )
 
 map_all.add_layout(color_bar2, 'below')
+
+state_select.on_change("value", lambda attr, old, new: update_state())
 
 layout = row(map_all, column(state_select, map_state))
 
