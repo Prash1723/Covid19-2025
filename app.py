@@ -60,8 +60,6 @@ cov_total.drop(index=28, axis=0, inplace=True)
 cov_total.new_cases_today.replace({'–': 0}, inplace=True)
 cov_total.new_cases_today = cov_total.new_cases_today.apply(lambda x: int(x))
 
-print(cov_total.new_cases_today)
-
 # - Functions
 
 def create_data(df1, map_data):
@@ -154,7 +152,7 @@ map_all.patches(
     fill_alpha=0.7, line_color="black", line_width=0.5
 )
 
-map_all.add_layout(color_bar, 'below')
+map_all.add_layout(color_bar2, 'below')
 
 layout = row(map_all, column(state_select, map_state))
 
