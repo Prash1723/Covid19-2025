@@ -12,6 +12,7 @@ This is a quick project to track the 2025 spike in covid19 cases in India
     - Bokeh
 
 **Source**: https://www.covid19india.org/
+**Map source**: https://simplemaps.com/gis/country/in
 
 ## Run
 To run this project, follow the steps:
