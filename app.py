@@ -76,7 +76,9 @@ df_json = json.loads(df1[
 map_data = json.dumps(df_json)
 
 ## State map data
-state_json = json.loads(df1[
+affected_state = df1.query('new_cases_today==new_cases_today.max()')['state'].values[0]
+
+state_json = json.loads(df1.query('state==@affected_state')[
     ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
     ].to_json())
 
@@ -84,7 +86,6 @@ state_data = json.dumps(state_json)
 
 # Data source
 map_source = GeoJSONDataSource(geojson=map_data)
-state_source = GeoJSONDataSource(geojson=state_data)
 
 # Map Geometry
 color_mapper1 = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.new_cases_today.max())
@@ -96,40 +97,13 @@ color_bar2 = ColorBar(color_mapper = color_mapper2, location = (0,0))
 # Create widgets
 state_select = Select(
     title="Select state",
-    value="Kerala",
+    value=affected_state,
     options=list(set(cov_total['state'].dropna().astype(str)))
     )
 
 # Map of India
 TOOLS = "pan,wheel_zoom,reset,hover,save"
 
-map_state = figure(
-    width=550, 
-    height=725,
-    title="Total active cases by states",
-    tools=TOOLS, x_axis_location=None, y_axis_location=None,
-    tooltips = [
-        ("state", "@state"),
-        ("Cases", "@new_cases_today")
-    ]
-)
-
-map_state.grid.grid_line_color = None
-map_state.hover.point_policy = "follow_mouse"
-
-# Create patches (of map)
-map_state.patches(
-    "xs", "ys", source=state_source,
-    fill_color={
-        "field": 'new_cases_today',
-        "transform": color_mapper1
-    },
-    fill_alpha=0.7, line_color="black", line_width=0.5
-)
-
-map_state.add_layout(color_bar1, 'below')
-
-# Map of India
 map_all = figure(
     width=550, 
     height=725,
@@ -157,17 +131,63 @@ map_all.patches(
 map_all.add_layout(color_bar2, 'below')
 
 def update_state():
-    """Updates the state map"""
+    """
+    Update state map data
+    """
     selected_state = state_select.value
 
     # Filter data
-    data = df1.query('state=="@selected_state"')
+    data = df1.query('state=="@selected_state"')[
+    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
+    ].to_json()
 
     # Read and dump data into json
     df_json = json.loads(data)
     map_data = json.dumps(df_json)
 
     return map_data
+
+def create_state(src):
+    """
+    Creates the state map
+    """
+
+    map_data = src
+
+    # State map of India
+    TOOLS = "pan,wheel_zoom,reset,hover,save"
+
+    map_state = figure(
+        width=550, 
+        height=725,
+        title="Total active cases by states",
+        tools=TOOLS, x_axis_location=None, y_axis_location=None,
+        tooltips = [
+            ("state", "@state"),
+            ("Cases", "@new_cases_today")
+        ]
+    )
+
+    map_state.grid.grid_line_color = None
+    map_state.hover.point_policy = "follow_mouse"
+
+    # Create patches (of map)
+    map_state.patches(
+        "xs", "ys", source=map_data,
+        fill_color={
+            "field": 'new_cases_today',
+            "transform": color_mapper1
+        },
+        fill_alpha=0.7, line_color="black", line_width=0.5
+    )
+
+    map_state.add_layout(color_bar1, 'below')
+
+    return map_state
+
+state_source = GeoJSONDataSource(geojson=state_data)
+
+map_state = create_state(state_source)
 
 state_select.on_change("value", lambda attr, old, new: update_state())
 
