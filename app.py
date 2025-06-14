@@ -109,7 +109,7 @@ TOOLS = "pan,wheel_zoom,reset,hover,save"
 map_all = figure(
     width=550, 
     height=725,
-    title="Daily active cases by states",
+    title="Total active cases by states",
     tools=TOOLS, x_axis_location=None, y_axis_location=None,
     tooltips = [
         ("state", "@state"),
@@ -162,7 +162,7 @@ def create_state(src):
     map_state = figure(
         width=550, 
         height=725,
-        title="Total active cases by states",
+        title="Daily active cases by state",
         tools=TOOLS, x_axis_location=None, y_axis_location=None,
         tooltips = [
             ("state", "@state"),
