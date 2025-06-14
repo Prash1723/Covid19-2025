@@ -67,6 +67,15 @@ df1 = gdf.merge(cov_total, how='left', left_on='state', right_on='state')
 
 df1.fillna(0, inplace=True)
 
+affected_state = df1.query('new_cases_today==new_cases_today.max()')['state'].values[0]
+
+# Create widgets
+state_select = Select(
+    title="Select state",
+    value=affected_state,
+    options=list(set(cov_total['state'].dropna().astype(str)))
+    )
+
 # Read data to json
 ## India map data
 df_json = json.loads(df1[
@@ -76,8 +85,6 @@ df_json = json.loads(df1[
 map_data = json.dumps(df_json)
 
 ## State map data
-affected_state = df1.query('new_cases_today==new_cases_today.max()')['state'].values[0]
-
 state_json = json.loads(df1.query('state==@affected_state')[
     ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
     ].to_json())
@@ -87,19 +94,14 @@ state_data = json.dumps(state_json)
 # Data source
 map_source = GeoJSONDataSource(geojson=map_data)
 
+state_source = GeoJSONDataSource()
+
 # Map Geometry
 color_mapper1 = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.new_cases_today.max())
 color_mapper2 = LinearColorMapper(palette=colorcet.bgy, low=0, high=cov_total.total_active_cases.max())
 
 color_bar1 = ColorBar(color_mapper = color_mapper1, location = (0,0))
 color_bar2 = ColorBar(color_mapper = color_mapper2, location = (0,0))
-
-# Create widgets
-state_select = Select(
-    title="Select state",
-    value=affected_state,
-    options=list(set(cov_total['state'].dropna().astype(str)))
-    )
 
 # Map of India
 TOOLS = "pan,wheel_zoom,reset,hover,save"
@@ -137,15 +139,15 @@ def update_state():
     selected_state = state_select.value
 
     # Filter data
-    data = df1.query('state=="@selected_state"')[
+    data = df1[df1['state']==selected_state][
     ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
     ].to_json()
-
+    
     # Read and dump data into json
-    df_json = json.loads(data)
-    map_data = json.dumps(df_json)
+    state_json = json.loads(data)
+    state_data = json.dumps(state_json)
 
-    return map_data
+    state_source.geojson = state_data
 
 def create_state(src):
     """
@@ -185,7 +187,7 @@ def create_state(src):
 
     return map_state
 
-state_source = GeoJSONDataSource(geojson=state_data)
+update_state()
 
 map_state = create_state(state_source)
 
