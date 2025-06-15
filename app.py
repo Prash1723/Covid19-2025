@@ -36,8 +36,8 @@ cov_total = pd.read_html(str(tables), header=0)[0]
 # Rename Columns
 cov_total.columns = ["s.no", "state", "total_active_cases", "new_cases_today"]
 
-# Rename
-state_name = {'Kerala***': 'Kerala'}
+# Rename state
+state_name = {'Kerala***': 'Kerala', 'Orissa': 'Odisha'}
 
 cov_total.state = cov_total.state.apply(lambda x: state_name.get(x, x))
 
@@ -50,6 +50,9 @@ gdf = gpd.read_file(borders)[['id', 'name', 'geometry']]
 
 # Rename columns
 gdf.columns = ['state_code', 'state', 'geometry']
+
+# Rename state
+gdf.state = gdf.state.apply(lambda x: state_name.get(x, x))
 
 # Drop total row
 total_daily, total_active = cov_total.query('state=="Total#"')[['new_cases_today', 'total_active_cases']]
@@ -160,8 +163,8 @@ def create_state(src):
     TOOLS = "pan,wheel_zoom,reset,hover,save"
 
     map_state = figure(
-        width=550, 
-        height=725,
+        width=460, 
+        height=460,
         title="Daily active cases by state",
         tools=TOOLS, x_axis_location=None, y_axis_location=None,
         tooltips = [
