@@ -55,8 +55,6 @@ gdf.columns = ['state_code', 'state', 'geometry']
 gdf.state = gdf.state.apply(lambda x: state_name.get(x, x))
 
 # Drop total row
-total_daily, total_active = cov_total.query('state=="Total#"')[['new_cases_today', 'total_active_cases']]
-
 cov_total.drop(index=28, axis=0, inplace=True)
 
 # Replace - with 0 in new_cases_today
@@ -72,9 +70,13 @@ df1.fillna(0, inplace=True)
 
 affected_state = df1.query('new_cases_today==new_cases_today.max()')['state'].values[0]
 
+total_daily, total_active = cov_total[['new_cases_today', 'total_active_cases']].sum()
+print(total_daily) 
+print(total_active)
+
 # Calculate percentages
-gdf['total_active_cases%'] = gdf['total_active_cases']*100/total_active
-gdf['new_cases_today%'] = gdf['new_cases_today']*100/total_daily
+df1['total_active_cases%'] = (df1['total_active_cases']*100)/total_active
+df1['new_cases_today%'] = (df1['new_cases_today']*100)/total_daily
 
 # Create widgets
 state_select = Select(
@@ -86,14 +88,14 @@ state_select = Select(
 # Read data to json
 ## India map data
 df_json = json.loads(df1[
-    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
+    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today', 'total_active_cases%', 'new_cases_today%']
     ].to_json())
 
 map_data = json.dumps(df_json)
 
 ## State map data
 state_json = json.loads(df1.query('state==@affected_state')[
-    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
+    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today', 'total_active_cases%', 'new_cases_today%']
     ].to_json())
 
 state_data = json.dumps(state_json)
@@ -120,7 +122,8 @@ map_all = figure(
     tools=TOOLS, x_axis_location=None, y_axis_location=None,
     tooltips = [
         ("state", "@state"),
-        ("Cases", "@total_active_cases")
+        ("Cases", "@total_active_cases"),
+        ("percentage", "@total_active_cases%")
     ]
 )
 
@@ -147,7 +150,7 @@ def update_state():
 
     # Filter data
     data = df1[df1['state']==selected_state][
-    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today']
+    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today', 'total_active_cases%', 'new_cases_today%']
     ].to_json()
     
     # Read and dump data into json
@@ -173,7 +176,8 @@ def create_state(src):
         tools=TOOLS, x_axis_location=None, y_axis_location=None,
         tooltips = [
             ("state", "@state"),
-            ("Cases", "@new_cases_today")
+            ("Cases", "@new_cases_today"),
+            ("percentage", "@new_cases_today%")
         ]
     )
 
