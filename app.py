@@ -72,6 +72,10 @@ df1.fillna(0, inplace=True)
 
 affected_state = df1.query('new_cases_today==new_cases_today.max()')['state'].values[0]
 
+# Calculate percentages
+gdf['total_active_cases%'] = gdf['total_active_cases']*100/total_active
+gdf['new_cases_today%'] = gdf['new_cases_today']*100/total_daily
+
 # Create widgets
 state_select = Select(
     title="Select state",
