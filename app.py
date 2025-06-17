@@ -75,8 +75,8 @@ print(total_daily)
 print(total_active)
 
 # Calculate percentages
-df1['total_active_cases%'] = (df1['total_active_cases']*100)/total_active
-df1['new_cases_today%'] = (df1['new_cases_today']*100)/total_daily
+df1['total_active_cases_perc'] = (df1['total_active_cases']*100)/total_active
+df1['new_cases_today_perc'] = (df1['new_cases_today']*100)/total_daily
 
 # Create widgets
 state_select = Select(
@@ -87,16 +87,28 @@ state_select = Select(
 
 # Read data to json
 ## India map data
-df_json = json.loads(df1[
-    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today', 'total_active_cases%', 'new_cases_today%']
-    ].to_json())
+df_json = json.loads(df1[[
+    'state_code', 
+    'state', 
+    'geometry', 
+    'total_active_cases', 
+    'new_cases_today', 
+    'total_active_cases_perc', 
+    'new_cases_today_perc'
+    ]].to_json())
 
 map_data = json.dumps(df_json)
 
 ## State map data
-state_json = json.loads(df1.query('state==@affected_state')[
-    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today', 'total_active_cases%', 'new_cases_today%']
-    ].to_json())
+state_json = json.loads(df1.query('state==@affected_state')[[
+    'state_code', 
+    'state', 
+    'geometry', 
+    'total_active_cases', 
+    'new_cases_today', 
+    'total_active_cases_perc', 
+    'new_cases_today_perc'
+    ]].to_json())
 
 state_data = json.dumps(state_json)
 
@@ -123,7 +135,7 @@ map_all = figure(
     tooltips = [
         ("state", "@state"),
         ("Cases", "@total_active_cases"),
-        ("percentage", "@total_active_cases%")
+        ("percentage", "@total_active_cases_perc%")
     ]
 )
 
@@ -149,9 +161,15 @@ def update_state():
     selected_state = state_select.value
 
     # Filter data
-    data = df1[df1['state']==selected_state][
-    ['state_code', 'state', 'geometry', 'total_active_cases', 'new_cases_today', 'total_active_cases%', 'new_cases_today%']
-    ].to_json()
+    data = df1[df1['state']==selected_state][[
+    'state_code', 
+    'state', 
+    'geometry', 
+    'total_active_cases', 
+    'new_cases_today', 
+    'total_active_cases_perc', 
+    'new_cases_today_perc'
+    ]].to_json()
     
     # Read and dump data into json
     state_json = json.loads(data)
@@ -177,7 +195,7 @@ def create_state(src):
         tooltips = [
             ("state", "@state"),
             ("Cases", "@new_cases_today"),
-            ("percentage", "@new_cases_today%")
+            ("percentage", "@new_cases_today_perc%")
         ]
     )
 
