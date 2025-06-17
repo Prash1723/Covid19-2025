@@ -75,8 +75,8 @@ print(total_daily)
 print(total_active)
 
 # Calculate percentages
-df1['total_active_cases_perc'] = (df1['total_active_cases']*100)/total_active
-df1['new_cases_today_perc'] = (df1['new_cases_today']*100)/total_daily
+df1['total_active_cases_perc'] = round((df1['total_active_cases']*100)/total_active, 2)
+df1['new_cases_today_perc'] = round((df1['new_cases_today']*100)/total_daily , 2)
 
 # Create widgets
 state_select = Select(
